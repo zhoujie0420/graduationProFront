@@ -9,7 +9,7 @@ export default defineStore("peerStore", {
             photo: "",
             token: "",
             phone: "",
-            auth: "",
+            role: "",
             is_login: false,
             pulling_info: true,  // 是否正在从云端拉取信息
             /**
@@ -133,7 +133,6 @@ export default defineStore("peerStore", {
                             is_login: true,
                         });
                         data.success(resp);
-                        console.log(resp);
                     } else {
                         data.error(resp);
                     }

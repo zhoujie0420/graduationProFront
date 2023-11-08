@@ -12,7 +12,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 // import router from "@/router";
 import {ref} from "vue";
 import $ from "jquery";
@@ -22,95 +22,82 @@ import usePeerStore from "@/store/peer";
 import initializePeerjs from "@/plugins/initialization-peer/index";
 import initializeWebSocketPlugin from "@/plugins/initialization-web-socket/index";
 
-export default {
-  setup() {
-    const username = ref('');
-    const password = ref('');
-    const confirmPassword = ref('');
-    const peerStore = usePeerStore();
-    const error_message = ref('');
+const username = ref('');
+const password = ref('');
+const peerStore = usePeerStore();
+const error_message = ref('');
 
-    const login = () => {
-      $.ajax({
-        url: `${apiUrl}/api/user/account/token/`,
-        type: "post",
-        data: {
-          username: username.value,
-          password: password.value,
-        },
-        success(resp) {
-          if (resp.error_message === "success") {
-            peerStore.token = resp.token;
-            getinfo();
-            router.push("/setting-view");
-          } else {
-            error_message.value = resp.error_message;
-          }
-        },
-      });
+const login = () => {
+  $.ajax({
+    url: `${apiUrl}/api/user/account/token/`,
+    type: "post",
+    data: {
+      username: username.value,
+      password: password.value,
+    },
+    success(resp) {
+      if (resp.error_message === "success") {
+        peerStore.token = resp.token;
+        getinfo();
+        router.push("/setting-view");
+      } else {
+        error_message.value = resp.error_message;
+      }
+    },
+  });
+}
+
+function getinfo() {
+  $.ajax({
+    url: `${apiUrl}/api/user/account/info/`,
+    type: "get",
+    headers: {
+      Authorization: "Bearer " + peerStore.token,
+    },
+    success(resp) {
+      if (resp.error_message === "success") {
+        peerStore.username = resp.username;
+        peerStore.is_login = true;
+        peerStore.photo = resp.photo;
+        peerStore.phone = resp.phone;
+        peerStore.role = resp.role;
+        router.push("/setting-view");
+        initializePeerjs(username.value);
+        initializeWebSocketPlugin(username.value);
+      } else {
+        console.log(resp.error_message)
+      }
+    },
+    error(resp) {
+      console.log(resp)
     }
+  })
+}
 
-    function getinfo() {
-        $.ajax({
-          url: `${apiUrl}/api/user/account/info/`,
-          type: "get",
-          headers: {
-            Authorization: "Bearer " + peerStore.token,
-          },
-          success(resp) {
-            if (resp.error_message === "success") {
-
-              peerStore.username = resp.username;
-              peerStore.is_login = true;
-              peerStore.photo = resp.photo;
-              peerStore.phone = resp.phone;
-              peerStore.auth = resp.auth;
-              router.push("/setting-view");
-              initializePeerjs(username.value);
-              initializeWebSocketPlugin(username.value);
-
-            } else {
-              console.log(resp.error_message)
-            }
-          },
-          error(resp) {
-            console.log(resp)
-          }
-        })
-    }
-
-    // const jwt_token = localStorage.getItem("jwt_token");
-    const jwt_token = localStorage.getItem("jwt_token");
-    if (jwt_token) {
-      peerStore.token = jwt_token;
-      try {
-        peerStore.getinfo({
-          success() {
-            router.push("/setting-view");
-            peerStore.pulling_info = false
-          },
-          error() {
-            peerStore.pulling_info = false
-          }
-        });
+// const jwt_token = localStorage.getItem("jwt_token");
+const jwt_token = localStorage.getItem("jwt_token");
+if (jwt_token) {
+  peerStore.token = jwt_token;
+  try {
+    peerStore.getinfo({
+      success() {
+        router.push("/setting-view");
         peerStore.pulling_info = false
-      } catch (e) {
-        console.log(e)
+      },
+      error() {
         peerStore.pulling_info = false
       }
-    } else {
-      peerStore.pulling_info = false
-    }
-
-
-    return {
-      username,
-      password,
-      confirmPassword,
-      login
-    };
+    });
+    peerStore.pulling_info = false
+  } catch (e) {
+    console.log(e)
+    peerStore.pulling_info = false
   }
-};
+} else {
+  peerStore.pulling_info = false
+}
+
+
 </script>
 
 

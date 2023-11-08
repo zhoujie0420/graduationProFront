@@ -41,12 +41,10 @@
     <van-tabbar v-model="activatedTabBarItemIndex"
                 safe-area-inset-bottom
                 placeholder>
-
       <van-tabbar-item icon="friends-o"
                        to="/friends-list-view">
-        朋友
+        问诊
       </van-tabbar-item>
-
       <van-tabbar-item icon="setting-o"
                        to="/setting-view">
         设置
