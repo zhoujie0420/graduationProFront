@@ -28,6 +28,13 @@ let router = createRouter({
                     meta: {
                         requestAuth: true,
                     }
+                },
+                {
+                    path: "recordList-view",
+                    component: () => import("@/views/RecordListView.vue"),
+                    meta: {
+                        requestAuth: true,
+                    }
                 }
             ]
         },
